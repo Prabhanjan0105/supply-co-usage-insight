@@ -32,10 +32,46 @@ def test_milestone_1():
     assert len(procedure_ids) == len(set(procedure_ids))
 
 
-# Milestone 2: Frequent itemset mining
-@pytest.mark.skip(reason="remove this line when you start milestone 2")
+
+# Milestone 2: Implement frequent itemset mining
 def test_milestone_2():
-    raise NotImplementedError("write the test for milestone 2")
+    from app.core import milestone_2
+
+    results = milestone_2(min_support=0.3)
+
+    # Mining should return frequent itemsets
+    assert len(results) > 0
+
+    # Verify result structure
+    for result in results:
+        assert "itemset" in result
+        assert "count" in result
+        assert "support" in result
+
+        assert result["support"] >= 0.3
+        assert result["count"] >= 3
+
+    # Check a known frequent supply combination
+    gloves_syringe = next(
+        result for result in results
+        if set(result["itemset"]) == {
+            "Gloves", "Syringe"
+        }
+    )
+
+    assert gloves_syringe["count"] == 6
+    assert gloves_syringe["support"] == 0.6
+
+    # Check threshold filtering
+    high_support_results = milestone_2(
+        min_support=0.8
+    )
+
+    assert all(
+        result["support"] >= 0.8
+        for result in high_support_results
+    )
+
 
 
 # Milestone 3: Analyze frequent itemsets

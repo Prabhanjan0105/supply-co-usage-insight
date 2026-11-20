@@ -16,10 +16,99 @@ def milestone_1():
     ]
     return procedures
 
-# --- Milestone 2: Implement frequent itemset mining (e.g., using thilimarketbasket).
-# Hint: Apply the `lfretail-lfmarketbasket` frequent itemset mining technique to your mock medical procedure data.
-def milestone_2():  # TODO(milestone 2)
-    raise NotImplementedError("TODO(milestone 2)")
+
+def milestone_2(min_support=0.3):
+    """
+    Mine frequent supply itemsets using the Apriori algorithm.
+
+    Returns itemsets with their counts and support values.
+    """
+    from itertools import combinations
+    from collections import Counter
+
+    if not 0 < min_support <= 1:
+        raise ValueError("min_support must be between 0 and 1")
+
+    procedures = milestone_1()
+
+    transactions = [
+        set(procedure["supplies"])
+        for procedure in procedures
+    ]
+
+    total_transactions = len(transactions)
+
+    if total_transactions == 0:
+        return []
+
+    # Count individual supply frequencies
+    item_counts = Counter(
+        item
+        for transaction in transactions
+        for item in transaction
+    )
+
+    # Keep only frequent individual supplies
+    frequent_items = sorted(
+        item for item, count in item_counts.items()
+        if count / total_transactions >= min_support
+    )
+
+    results = []
+    candidates = [
+        (item,) for item in frequent_items
+    ]
+
+    while candidates:
+        frequent_sets = []
+
+        for candidate in candidates:
+            count = sum(
+                set(candidate).issubset(transaction)
+                for transaction in transactions
+            )
+
+            support = count / total_transactions
+
+            if support >= min_support:
+                results.append({
+                    "itemset": candidate,
+                    "count": count,
+                    "support": round(support, 4)
+                })
+                frequent_sets.append(candidate)
+
+        if not frequent_sets:
+            break
+
+        # Generate larger candidates using Apriori pruning
+        next_size = len(frequent_sets[0]) + 1
+        frequent_lookup = set(frequent_sets)
+
+        candidates = sorted({
+            candidate
+            for left in frequent_sets
+            for right in frequent_sets
+            for candidate in [
+                tuple(sorted(set(left) | set(right)))
+            ]
+            if len(candidate) == next_size
+            and all(
+                subset in frequent_lookup
+                for subset in combinations(
+                    candidate, next_size - 1
+                )
+            )
+        })
+
+    return sorted(
+        results,
+        key=lambda result: (
+            -result["support"],
+            result["itemset"]
+        )
+    )
+
 
 
 # --- Milestone 3: Analyze and display the most frequent co-occurring supply itemsets.
