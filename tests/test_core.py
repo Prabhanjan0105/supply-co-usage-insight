@@ -74,10 +74,37 @@ def test_milestone_2():
 
 
 
-# Milestone 3: Analyze frequent itemsets
-@pytest.mark.skip(reason="remove this line when you start milestone 3")
+
+# Milestone 3: Analyze frequent co-occurring supplies
 def test_milestone_3():
-    raise NotImplementedError("write the test for milestone 3")
+    from app.core import milestone_3
+
+    results = milestone_3(
+        top_n=5,
+        min_support=0.3
+    )
+
+    # Verify the number of results
+    assert len(results) == 5
+
+    # Every result must contain 2 or more supplies
+    for result in results:
+        assert len(result["itemset"]) >= 2
+
+    # Verify descending support order
+    supports = [
+        result["support"] for result in results
+    ]
+
+    assert supports == sorted(
+        supports, reverse=True
+    )
+
+    # Verify expected strongest pair
+    assert results[0]["support"] == 0.6
+
+    # Verify custom top N
+    assert len(milestone_3(top_n=3)) == 3
 
 
 # Milestone 4: Compare against baseline

@@ -111,10 +111,63 @@ def milestone_2(min_support=0.3):
 
 
 
-# --- Milestone 3: Analyze and display the most frequent co-occurring supply itemsets.
-# Hint: Sort the results from the mining algorithm by their support metric and display the top N most frequent itemsets.
-def milestone_3():  # TODO(milestone 3)
-    raise NotImplementedError("TODO(milestone 3)")
+
+def milestone_3(top_n=5, min_support=0.3):
+    """
+    Analyze and display the top N co-occurring
+    medical supply itemsets.
+    """
+    if not isinstance(top_n, int) or top_n < 1:
+        raise ValueError("top_n must be a positive integer")
+
+    # Get frequent itemsets from Milestone 2
+    frequent_itemsets = milestone_2(
+        min_support=min_support
+    )
+
+    # Only combinations of 2 or more supplies
+    co_occurring = [
+        item for item in frequent_itemsets
+        if len(item["itemset"]) >= 2
+    ]
+
+    # Sort by support, highest first
+    co_occurring.sort(
+        key=lambda item: (
+            -item["support"],
+            item["itemset"]
+        )
+    )
+
+    # Select the top N combinations
+    top_itemsets = co_occurring[:top_n]
+
+    print("\nTOP CO-OCCURRING MEDICAL SUPPLIES")
+    print("-" * 65)
+    print(
+        f'{"Rank":<6}'
+        f'{"Supply Combination":<38}'
+        f'{"Support":<10}'
+        f'{"Count":<8}'
+    )
+    print("-" * 65)
+
+    for rank, result in enumerate(
+        top_itemsets, start=1
+    ):
+        supplies = ", ".join(result["itemset"])
+
+        print(
+            f'{rank:<6}'
+            f'{supplies:<38}'
+            f'{result["support"]:<10.2f}'
+            f'{result["count"]:<8}'
+        )
+
+    print("-" * 65)
+
+    return top_itemsets
+
 
 
 # --- Milestone 4: Compare the mined itemsets against simple baseline expectations.
