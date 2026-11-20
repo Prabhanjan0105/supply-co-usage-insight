@@ -1,0 +1,11 @@
+Supply Bundle,Count,Support,Expected Support,Lift,Interpretation
+"Gauze, Gloves",6,0.6,0.54,1.1111,Above baseline
+"Gloves, Syringe",6,0.6,0.63,0.9524,Below baseline
+"IV Set, Syringe",4,0.4,0.28,1.4286,Above baseline
+"Bandage, Gauze",3,0.3,0.18,1.6667,Above baseline
+"Bandage, Gauze, Gloves",3,0.3,0.162,1.8519,Above baseline
+"Bandage, Gloves",3,0.3,0.27,1.1111,Above baseline
+"Gauze, Gloves, Syringe",3,0.3,0.378,0.7937,Below baseline
+"Gauze, Syringe",3,0.3,0.42,0.7143,Below baseline
+"Gloves, IV Set",3,0.3,0.36,0.8333,Below baseline
+"Gloves, IV Set, Syringe",3,0.3,0.252,1.1905,Above baseline

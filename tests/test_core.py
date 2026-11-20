@@ -148,7 +148,55 @@ def test_milestone_4():
 
 
 
-# Milestone 5: Generate report
-@pytest.mark.skip(reason="remove this line when you start milestone 5")
-def test_milestone_5():
-    raise NotImplementedError("write the test for milestone 5")
+# Milestone 5: Generate a supply bundle report
+def test_milestone_5(tmp_path):
+    import csv
+    from pathlib import Path
+    from app.core import milestone_5
+
+    output_file = tmp_path / "supply_bundle_report.csv"
+
+    result = milestone_5(
+        output_path=str(output_file),
+        min_support=0.3
+    )
+
+    # Verify the report was created
+    assert Path(result).exists()
+
+    # Read and validate CSV content
+    with output_file.open(
+        "r", newline="", encoding="utf-8"
+    ) as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+
+    assert len(rows) > 0
+
+    expected_columns = [
+        "Supply Bundle",
+        "Count",
+        "Support",
+        "Expected Support",
+        "Lift",
+        "Interpretation"
+    ]
+
+    assert reader.fieldnames == expected_columns
+
+    # Verify support and lift values
+    for row in rows:
+        assert float(row["Support"]) >= 0.3
+        assert float(row["Lift"]) > 0
+        assert int(row["Count"]) >= 3
+
+    # Verify a known combination
+    gloves_syringe = next(
+        row for row in rows
+        if set(row["Supply Bundle"].split(", ")) ==
+        {"Gloves", "Syringe"}
+    )
+
+    assert float(gloves_syringe["Support"]) == 0.6
+    assert int(gloves_syringe["Count"]) == 6
+

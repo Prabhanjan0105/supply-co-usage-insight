@@ -247,7 +247,76 @@ def milestone_4(min_support=0.3):
 
 
 
-# --- Milestone 5: Generate a report of identified supply bundles.
-# Hint: Format the identified frequent itemsets and their support values into a clear, readable output, such as a CSV or a well-structured text file.
-def milestone_5():  # TODO(milestone 5)
-    raise NotImplementedError("TODO(milestone 5)")
+
+def milestone_5(output_path="reports/supply_bundle_report.csv",
+                min_support=0.3):
+    """
+    Generate a CSV report of frequent medical supply bundles.
+    """
+    import csv
+    from pathlib import Path
+
+    # Get mined itemsets and baseline comparisons
+    frequent_itemsets = milestone_2(min_support=min_support)
+    comparisons = milestone_4(min_support=min_support)
+
+    # Lookup baseline comparisons by itemset
+    comparison_lookup = {
+        tuple(result["itemset"]): result
+        for result in comparisons
+    }
+
+    # Include only bundles with 2 or more supplies
+    bundles = [
+        result for result in frequent_itemsets
+        if len(result["itemset"]) >= 2
+    ]
+
+    # Sort bundles by support
+    bundles.sort(
+        key=lambda result: (
+            -result["support"],
+            result["itemset"]
+        )
+    )
+
+    report_path = Path(output_path)
+    report_path.parent.mkdir(
+        parents=True, exist_ok=True
+    )
+
+    with report_path.open(
+        "w", newline="", encoding="utf-8"
+    ) as file:
+        writer = csv.writer(file)
+
+        writer.writerow([
+            "Supply Bundle",
+            "Count",
+            "Support",
+            "Expected Support",
+            "Lift",
+            "Interpretation"
+        ])
+
+        for bundle in bundles:
+            itemset = tuple(bundle["itemset"])
+            baseline = comparison_lookup[itemset]
+
+            writer.writerow([
+                ", ".join(itemset),
+                bundle["count"],
+                bundle["support"],
+                baseline["expected_support"],
+                baseline["lift"],
+                baseline["interpretation"]
+            ])
+
+    print("\nSUPPLY CO-USAGE INSIGHT REPORT")
+    print("-" * 50)
+    print(f"Report saved to: {report_path}")
+    print(f"Total supply bundles identified: {len(bundles)}")
+    print(f"Minimum support threshold: {min_support:.0%}")
+    print("-" * 50)
+
+    return str(report_path)
