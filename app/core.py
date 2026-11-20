@@ -170,10 +170,81 @@ def milestone_3(top_n=5, min_support=0.3):
 
 
 
-# --- Milestone 4: Compare the mined itemsets against simple baseline expectations.
-# Hint: Consider a simple baseline where items are chosen randomly or based on their individual frequency of appearance.
-def milestone_4():  # TODO(milestone 4)
-    raise NotImplementedError("TODO(milestone 4)")
+
+def milestone_4(min_support=0.3):
+    """
+    Compare frequent supply combinations against
+    an independence-based baseline.
+    """
+    procedures = milestone_1()
+    frequent_itemsets = milestone_2(min_support=min_support)
+
+    total_transactions = len(procedures)
+
+    if total_transactions == 0:
+        return []
+
+    # Calculate individual supply probabilities
+    item_frequency = {}
+
+    for procedure in procedures:
+        for supply in set(procedure["supplies"]):
+            item_frequency[supply] = (
+                item_frequency.get(supply, 0) + 1
+            )
+
+    item_probability = {
+        supply: count / total_transactions
+        for supply, count in item_frequency.items()
+    }
+
+    comparison_results = []
+
+    for result in frequent_itemsets:
+        itemset = result["itemset"]
+
+        # Analyze combinations of 2 or more supplies
+        if len(itemset) < 2:
+            continue
+
+        actual_support = result["support"]
+
+        # Expected support under independence
+        expected_support = 1.0
+
+        for supply in itemset:
+            expected_support *= item_probability[supply]
+
+        lift = (
+            actual_support / expected_support
+            if expected_support > 0
+            else 0
+        )
+
+        if lift > 1.000001:
+            interpretation = "Above baseline"
+        elif lift < 0.999999:
+            interpretation = "Below baseline"
+        else:
+            interpretation = "Matches baseline"
+
+        comparison_results.append({
+            "itemset": itemset,
+            "actual_support": round(actual_support, 4),
+            "expected_support": round(expected_support, 4),
+            "lift": round(lift, 4),
+            "interpretation": interpretation
+        })
+
+    comparison_results.sort(
+        key=lambda x: (
+            -x["lift"],
+            x["itemset"]
+        )
+    )
+
+    return comparison_results
+
 
 
 # --- Milestone 5: Generate a report of identified supply bundles.

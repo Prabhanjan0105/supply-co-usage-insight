@@ -107,10 +107,45 @@ def test_milestone_3():
     assert len(milestone_3(top_n=3)) == 3
 
 
-# Milestone 4: Compare against baseline
-@pytest.mark.skip(reason="remove this line when you start milestone 4")
+
+# Milestone 4: Compare against baseline expectations
 def test_milestone_4():
-    raise NotImplementedError("write the test for milestone 4")
+    from app.core import milestone_4
+
+    results = milestone_4(min_support=0.3)
+
+    # Results should not be empty
+    assert len(results) > 0
+
+    # Verify result structure
+    for result in results:
+        assert "itemset" in result
+        assert "actual_support" in result
+        assert "expected_support" in result
+        assert "lift" in result
+        assert "interpretation" in result
+
+        assert len(result["itemset"]) >= 2
+        assert result["lift"] > 0
+
+    # Verify known combination
+    gloves_syringe = next(
+        result for result in results
+        if set(result["itemset"]) == {
+            "Gloves", "Syringe"
+        }
+    )
+
+    assert gloves_syringe["actual_support"] == 0.6
+    assert gloves_syringe["expected_support"] == 0.63
+    assert gloves_syringe["lift"] == 0.9524
+    assert gloves_syringe["interpretation"] == "Below baseline"
+
+    # Verify descending lift order
+    lifts = [result["lift"] for result in results]
+
+    assert lifts == sorted(lifts, reverse=True)
+
 
 
 # Milestone 5: Generate report
